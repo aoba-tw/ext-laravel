@@ -27,7 +27,7 @@
     },
     "autoload": {
         "psr-4": {
-            "AobaTw\\Helpers\\": "src/Helpers"
+            "AobaTw\\Helpers\\": "app/Helpers"
         }
     },
     "minimum-stability": "dev",
