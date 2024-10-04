@@ -27,7 +27,7 @@
     },
     "autoload": {
         "psr-4": {
-            "AobaTw\\ExtLaravel\\App": "app"
+            "AobaTw\\ExtLaravel\\App\\": "app"
         }
     },
     "minimum-stability": "dev",
