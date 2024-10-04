@@ -1,5 +1,7 @@
 <?php
 
+namespace Helpers;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +17,9 @@ class DiscordHelper
     public $webhookId;
     public $webhookToken;
     private $logChannel;
-    public function __construct($config=null) {
+
+    public function __construct($config = null)
+    {
         if ($config) {
             $this->webhookId = $config['webhook_id'];
             $this->webhookToken = $config['webhook_token'];
@@ -24,7 +28,8 @@ class DiscordHelper
     }
 
 
-    protected function addInfoItem($key, $value) {
+    protected function addInfoItem($key, $value)
+    {
         $this->infoItems[$key] = $value;
     }
 
@@ -41,8 +46,8 @@ class DiscordHelper
     protected function flatIntoItemsToText(): string
     {
         $labelLength = $this->labelLength;
-        return collect($this->infoItems)->map(function($value, $key) use ($labelLength) {
-            return str_pad($key, $labelLength, ' ', STR_PAD_RIGHT).$value;
+        return collect($this->infoItems)->map(function ($value, $key) use ($labelLength) {
+            return str_pad($key, $labelLength, ' ', STR_PAD_RIGHT) . $value;
         })->implode("\n");
     }
 
@@ -50,7 +55,8 @@ class DiscordHelper
      * 傳送訊息至 Discord Channel
      * @param array $args
      */
-    public static function sendMessageToChannel(array $args) {
+    public static function sendMessageToChannel(array $args)
+    {
 
         $type = $args['type'] ?? self::TYPE_LOG;
         $config = config('services.discord.' . $type);
@@ -60,25 +66,25 @@ class DiscordHelper
         $title = $args['title'] ?? '';
         $errorMessage = $args['errorMessage'] ?? null;
 
-        $helper->addInfoItem($prefix.' PROJECT_CODE', config('app.project_code'));
-        $helper->addInfoItem($prefix.' APP_NAME', config('app.name'));
-        $helper->addInfoItem($prefix.' APP_ENV', config('app.env'));
-        $helper->addInfoItem($prefix.' TIMESTAMP', date('Y-m-d H:i:s'));
-        $helper->addInfoItem($prefix.' METHOD', request()->method());
-        $helper->addInfoItem($prefix.' URL', request()->url());
+        $helper->addInfoItem($prefix . ' PROJECT_CODE', config('app.project_code'));
+        $helper->addInfoItem($prefix . ' APP_NAME', config('app.name'));
+        $helper->addInfoItem($prefix . ' APP_ENV', config('app.env'));
+        $helper->addInfoItem($prefix . ' TIMESTAMP', date('Y-m-d H:i:s'));
+        $helper->addInfoItem($prefix . ' METHOD', request()->method());
+        $helper->addInfoItem($prefix . ' URL', request()->url());
 
         if ($user = Auth::user()) {
-            $helper->addInfoItem($prefix.' ACTOR', $user->name.'(#'.$user->id.')');
+            $helper->addInfoItem($prefix . ' ACTOR', $user->name . '(#' . $user->id . ')');
         }
         foreach ($args['infoItems'] ?? [] as $key => $value) {
-            $helper->addInfoItem($prefix.' '.$key, $value);
+            $helper->addInfoItem($prefix . ' ' . $key, $value);
         }
 
         $message = implode("\n", [
             $title,
             "```$type",
             $helper->flatIntoItemsToText(),
-            $errorMessage ? "\n".$errorMessage : '',
+            $errorMessage ? "\n" . $errorMessage : '',
             "```",
             $args['customMessage'] ?? '',
         ]);
@@ -92,9 +98,9 @@ class DiscordHelper
      * @param string $content
      * @return bool
      */
-    public function sendMessage(string $content=""): bool
+    public function sendMessage(string $content = ""): bool
     {
-        $webhookUrl = "https://discord.com/api/webhooks/".$this->webhookId."/".$this->webhookToken;
+        $webhookUrl = "https://discord.com/api/webhooks/" . $this->webhookId . "/" . $this->webhookToken;
 
         $message = [
             'content' => $content,
@@ -115,24 +121,20 @@ class DiscordHelper
         try {
             if (curl_errno($ch)) {
                 $this->logChannel->error('Curl error: ' . curl_error($ch));
-            }
-            else if ($response === '') {
+            } else if ($response === '') {
                 $this->logChannel->info('OK');
                 return true;
-            }
-            else {
+            } else {
                 $response = json_decode($response);
                 $message = $response->message;
                 $code = $response->code;
-                $this->logChannel->error($code.' '.$message);
+                $this->logChannel->error($code . ' ' . $message);
                 return false;
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->logChannel->error($e->getMessage());
             return false;
-        }
-        finally {
+        } finally {
             curl_close($ch);
             return true;
         }

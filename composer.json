@@ -1,11 +1,17 @@
 {
-    "name": "laravel/laravel",
-    "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "name": "aoba-tw/ext-laravel",
+    "type": "library",
+    "description": "Laravel Extensions",
+    "keywords": ["extension"],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Yuchen Chang",
+            "email": "phiricen@gmail.com"
+        }
+    ],
     "require": {
-        "php": "^8.0",
+        "php": "^7.1 || ^8.0",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
@@ -17,6 +23,11 @@
         "sort-packages": true,
         "allow-plugins": {
             "php-http/discovery": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "AobaTw\\Helpers\\": "src/Helpers"
         }
     },
     "minimum-stability": "dev",
